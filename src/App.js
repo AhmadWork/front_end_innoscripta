@@ -1,26 +1,49 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter as Router, Switch } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import Routes from './routes';
+import store from './store';
+import * as action from './store/actions';
+import { StateProvider } from './Context'
+import './app.css';
+store.dispatch(action.authCheck());
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const initialState = {
+  cart: []
+};
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case 'ADD_ITEM':
+      const{id,title,quantity,price}=action.payload;
+      const newItem = {
+        id,
+        title,
+       quantity,
+       price
+     }
+     return { ...state, cart: [...state.cart, newItem] }
+    case 'REMOVE_ITEM':
+      const newItems = state.cart.filter(item => item.id !== id)
+    return { ...state, cart: newItems }
+    default:
+      return initialState;
+  }
 }
 
-export default App;
+const App = () => {
+  return (
+  <StateProvider initialState={initialState} reducer={reducer}>
+  <Provider store={store}>
+    <Router>
+      <Switch>
+        <Routes />
+      </Switch>
+    </Router>
+  </Provider>
+</StateProvider> 
+  )
+}
+
+export default App
+
